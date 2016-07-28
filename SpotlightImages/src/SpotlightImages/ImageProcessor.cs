@@ -127,7 +127,7 @@ namespace SpotlightImages
         // todo: spotlightImagesFolder key
         private void GetConfiguration()
         {
-            if (!Directory.GetFiles(Directory.GetCurrentDirectory()).Contains("appsettings.json"))
+            if (!File.Exists(Directory.GetCurrentDirectory() + "\\appsettings.json"))
             {
                 var jsonContent = "{\n\r \"destinationFolder\" : \"" + this.defaultDestinationFolder + "\",\n\r \"spotlightImagesFolder\" : \"" + this.spotlightImagesFolder.Replace('\\', '/') + "\"\n\r }";
                 File.WriteAllText(Directory.GetCurrentDirectory() + "\\appsettings.json", jsonContent);
