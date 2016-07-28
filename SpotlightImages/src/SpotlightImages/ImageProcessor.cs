@@ -23,8 +23,8 @@ namespace SpotlightImages
 
         public void RetrieveImages()
         {
-            Console.WriteLine("Saving spotlight images in: " + destinationFolder);
-            Console.Write("Would you like to change the location? y/n: ");
+            Console.WriteLine("Saving spotlight images in: \"" + destinationFolder + "\"");
+            Console.Write("Would you like to change the folder? y/n: ");
             var input = Console.ReadLine();
 
             while (input != "n" && input != "N" && input != "y" && input != "Y")
@@ -42,25 +42,58 @@ namespace SpotlightImages
                 this.SetConfiguration("destinationFolder", destinationFolder);
             }
 
-            List<FileInfo> filesInDestination;
+            List<FileInfo> existingLandscapeImages = new List<FileInfo>();
+            List<FileInfo> existingPortraitImages = new List<FileInfo>();
             try
             {
-                filesInDestination = new DirectoryInfo(this.destinationFolder).EnumerateFiles().ToList();
+                if (!Directory.Exists(this.destinationFolder))
+                {
+                    Console.WriteLine("\"" + this.destinationFolder + "\" folder created.");
+                    Directory.CreateDirectory(this.destinationFolder);
+                    Directory.CreateDirectory(this.destinationFolder + "\\Landscape");
+                    Directory.CreateDirectory(this.destinationFolder + "\\Portrait");
+                }
+                else
+                {
+                    if (!Directory.Exists(this.destinationFolder + "\\Landscape"))
+                    {
+                        Console.WriteLine("\"" + this.destinationFolder + "\\Landscape" + "\" folder created.");
+                        Directory.CreateDirectory(this.destinationFolder + "\\Landscape");
+                    }
+
+                    if (!Directory.Exists(this.destinationFolder + "\\Portrait"))
+                    {
+                        Console.WriteLine("\"" + this.destinationFolder + "\\Portrait" + "\" folder created.");
+                        Directory.CreateDirectory(this.destinationFolder + "\\Portrait");
+                    }
+                }
+
+                existingLandscapeImages = new DirectoryInfo(this.destinationFolder + "\\Landscape").EnumerateFiles().ToList();
+                existingPortraitImages = new DirectoryInfo(this.destinationFolder + "\\Portrait").EnumerateFiles().ToList();
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                Console.WriteLine("Invalid destination path. Press enter to exit.");
+                Console.WriteLine(e.Message + "Press enter to exit.");
                 Console.ReadLine();
-                return;
+                Environment.Exit(1);
             }
 
             var copiedImagesCount = 0;
             var existingImagesCount = 0;
+
+            if (!Directory.Exists(this.spotlightImagesFolder))
+            {
+                Console.WriteLine("\"" + this.destinationFolder + "\" does not exist. Press enter to exit.");
+                Console.ReadLine();
+                Environment.Exit(1);
+            }
+
             IEnumerable<FileInfo> files = new DirectoryInfo(this.spotlightImagesFolder).EnumerateFiles();
 
             foreach (var file in files)
             {
-                if (filesInDestination.Any(x => x.Name == file.Name + ".jpg"))
+                if (existingLandscapeImages.Any(x => x.Name == file.Name + ".jpg") ||
+                    existingPortraitImages.Any(x => x.Name == file.Name + ".jpg"))
                 {
                     existingImagesCount++;
                     continue;
@@ -81,7 +114,7 @@ namespace SpotlightImages
                 copiedImagesCount++;
             }
 
-            Console.WriteLine(copiedImagesCount + " new images copied and " + existingImagesCount + " images already existing. Press enter to exit.");
+            Console.WriteLine(copiedImagesCount + " new images copied and " + existingImagesCount + " already existing images skipped. Press enter to exit.");
             Console.ReadLine();
         }
 
@@ -119,7 +152,7 @@ namespace SpotlightImages
             //}
             catch (Exception)
             {
-                Console.WriteLine("Invalid appsettings.json");
+                Console.WriteLine("Invalid appsettings.json . Press enter to exit.");
                 Console.ReadLine();
                 Environment.Exit(1);
             }
