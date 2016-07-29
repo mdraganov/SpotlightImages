@@ -99,16 +99,23 @@ namespace SpotlightImages
                     continue;
                 }
 
-                var size = this.GetJpegImageSize(file.FullName);
+                try
+                {
+                    var size = this.GetJpegImageSize(file.FullName);
 
-                // todo: decide what's portrait and what's landscape
-                if (size.Height < size.Width)
-                {
-                    this.CopyFile(file.FullName, destinationFolder + "\\Landscape\\" + file.Name + ".jpg");
+                    // todo: decide what's portrait and what's landscape
+                    if (size.Height < size.Width)
+                    {
+                        this.CopyFile(file.FullName, destinationFolder + "\\Landscape\\" + file.Name + ".jpg");
+                    }
+                    else
+                    {
+                        this.CopyFile(file.FullName, destinationFolder + "\\Portrait\\" + file.Name + ".jpg");
+                    }
                 }
-                else
+                catch (Exception)
                 {
-                    this.CopyFile(file.FullName, destinationFolder + "\\Portrait\\" + file.Name + ".jpg");
+                    continue;
                 }
 
                 copiedImagesCount++;
@@ -163,7 +170,7 @@ namespace SpotlightImages
         // todo: validate json
         private void SetConfiguration(string key, string value)
         {
-            config[key] = value;
+            this.config[key] = value;
         }
 
         public Size GetJpegImageSize(string filename)
