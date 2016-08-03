@@ -4,6 +4,7 @@ using System.Linq;
 using System.IO;
 using System.Drawing;
 using Microsoft.Extensions.Configuration;
+using System.Text;
 
 namespace SpotlightImages
 {
@@ -78,8 +79,10 @@ namespace SpotlightImages
                 Environment.Exit(1);
             }
 
-            var copiedImagesCount = 0;
-            var existingImagesCount = 0;
+            var copiedLandscapesCount = 0;
+            var copiedPortraitsCount = 0;
+            var existingLandscapesCount = 0;
+            var existingPortraitsCount = 0;
 
             if (!Directory.Exists(this.spotlightImagesFolder))
             {
@@ -92,10 +95,15 @@ namespace SpotlightImages
 
             foreach (var file in files)
             {
-                if (existingLandscapeImages.Any(x => x.Name == file.Name + ".jpg") ||
-                    existingPortraitImages.Any(x => x.Name == file.Name + ".jpg"))
+                if (existingLandscapeImages.Any(x => x.Name == file.Name + ".jpg"))
                 {
-                    existingImagesCount++;
+                    existingLandscapesCount++;
+                    continue;
+                }
+
+                if (existingPortraitImages.Any(x => x.Name == file.Name + ".jpg"))
+                {
+                    existingPortraitsCount++;
                     continue;
                 }
 
@@ -107,21 +115,27 @@ namespace SpotlightImages
                     if (size.Height < size.Width)
                     {
                         this.CopyFile(file.FullName, destinationFolder + "\\Landscape\\" + file.Name + ".jpg");
+                        copiedLandscapesCount++;
                     }
                     else
                     {
                         this.CopyFile(file.FullName, destinationFolder + "\\Portrait\\" + file.Name + ".jpg");
+                        copiedPortraitsCount++;
                     }
                 }
                 catch (Exception)
                 {
                     continue;
                 }
-
-                copiedImagesCount++;
             }
 
-            Console.WriteLine(copiedImagesCount + " new images copied and " + existingImagesCount + " already existing images skipped. Press enter to exit.");
+            Console.OutputEncoding = Encoding.UTF8;
+            Console.WriteLine("┌───────────────────────────┬────────────────────────┐");
+            Console.WriteLine("│New landscape images :{0} │ Already existing :{1} │", copiedLandscapesCount.ToString().PadLeft(4), existingLandscapesCount.ToString().PadLeft(4));
+            Console.WriteLine("├───────────────────────────┼────────────────────────┤");
+            Console.WriteLine("│New portrait images  :{0} │ Already existing :{1} │", copiedPortraitsCount.ToString().PadLeft(4), existingPortraitsCount.ToString().PadLeft(4));
+            Console.WriteLine("└───────────────────────────┴────────────────────────┘");
+            Console.WriteLine("Press enter to exit.");
             Console.ReadLine();
         }
 
