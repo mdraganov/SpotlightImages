@@ -13,6 +13,7 @@ namespace SpotlightImages
         private string spotlightImagesFolder;
         private string defaultDestinationFolder;
         private string destinationFolder;
+        private UiDrawer uiDrawer;
         private IConfigurationRoot config;
 
         public ImageProcessor(string spotlightImagesFolder, string defaultDestinationFolder)
@@ -20,28 +21,19 @@ namespace SpotlightImages
             this.spotlightImagesFolder = spotlightImagesFolder;
             this.defaultDestinationFolder = defaultDestinationFolder;
             this.GetConfiguration();
+            this.uiDrawer = new UiDrawer();
         }
 
         public void RetrieveImages()
         {
-            Console.WriteLine("Saving spotlight images in: \"" + destinationFolder + "\"");
-            Console.Write("Would you like to change the folder? y/n: ");
-            var input = Console.ReadLine();
+            var destFolder = this.uiDrawer.DrawFolderDialog(defaultDestinationFolder);
 
-            while (input != "n" && input != "N" && input != "y" && input != "Y")
+            if (destFolder != string.Empty)
             {
-                Console.Write("Invalid input. Please enter y or n: ");
-                input = Console.ReadLine();
-            }
+                this.destinationFolder = destFolder;
 
-            // todo: validate input
-            if (input == "y" || input == "Y")
-            {
-                Console.Write("Please enter new location path: ");
-                this.destinationFolder = Console.ReadLine().Replace('\\', '/');
-
-                this.SetConfiguration("destinationFolder", destinationFolder);
-            }
+                this.SetConfiguration("destinationFolder", this.destinationFolder);
+            }            
 
             List<FileInfo> existingLandscapeImages = new List<FileInfo>();
             List<FileInfo> existingPortraitImages = new List<FileInfo>();
@@ -129,14 +121,9 @@ namespace SpotlightImages
                 }
             }
 
-            Console.OutputEncoding = Encoding.UTF8;
-            Console.WriteLine("┌───────────────────────────┬────────────────────────┐");
-            Console.WriteLine("│New landscape images :{0} │ Already existing :{1} │", copiedLandscapesCount.ToString().PadLeft(4), existingLandscapesCount.ToString().PadLeft(4));
-            Console.WriteLine("├───────────────────────────┼────────────────────────┤");
-            Console.WriteLine("│New portrait images  :{0} │ Already existing :{1} │", copiedPortraitsCount.ToString().PadLeft(4), existingPortraitsCount.ToString().PadLeft(4));
-            Console.WriteLine("└───────────────────────────┴────────────────────────┘");
-            Console.WriteLine("Press enter to exit.");
-            Console.ReadLine();
+            Console.Clear();
+            this.uiDrawer.DrawResult(copiedLandscapesCount, existingLandscapesCount, copiedPortraitsCount, existingPortraitsCount);
+
         }
 
         // todo: handle exceptions
