@@ -23,7 +23,7 @@ namespace SpotlightImages
             if (isInputYes)
             {
                 Console.Write("Please enter new location path: ");
-                return Console.ReadLine().Replace('\\', '/');
+                return Console.ReadLine().Replace('/', '\\');
             }
 
             return string.Empty;
@@ -38,8 +38,9 @@ namespace SpotlightImages
             Console.WriteLine("└───────────────────────────┴────────────────────────┘");
         }
 
-        public void DrawOpenFolderDialog(string destinationFolder)
+        public bool DrawOpenFolderDialog()
         {
+            return this.DrawYesNoQuestion("Would you like to open the folder? ");
         }
 
         private bool DrawYesNoQuestion(string question)

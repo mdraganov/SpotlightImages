@@ -5,6 +5,7 @@ using System.IO;
 using System.Drawing;
 using Microsoft.Extensions.Configuration;
 using System.Text;
+using System.Diagnostics;
 
 namespace SpotlightImages
 {
@@ -19,7 +20,7 @@ namespace SpotlightImages
         public ImageProcessor(string spotlightImagesFolder, string defaultDestinationFolder)
         {
             this.spotlightImagesFolder = spotlightImagesFolder;
-            this.defaultDestinationFolder = defaultDestinationFolder;
+            this.defaultDestinationFolder = defaultDestinationFolder.Replace('/', '\\');
             this.GetConfiguration();
             this.uiDrawer = new UiDrawer();
         }
@@ -31,9 +32,7 @@ namespace SpotlightImages
             if (destFolder != string.Empty)
             {
                 this.destinationFolder = destFolder;
-
-                this.SetConfiguration("destinationFolder", this.destinationFolder);
-            }            
+            }
 
             List<FileInfo> existingLandscapeImages = new List<FileInfo>();
             List<FileInfo> existingPortraitImages = new List<FileInfo>();
@@ -69,6 +68,11 @@ namespace SpotlightImages
                 Console.WriteLine(e.Message + "Press enter to exit.");
                 Console.ReadLine();
                 Environment.Exit(1);
+            }
+
+            if (destFolder != string.Empty)
+            {
+                this.SetConfiguration("destinationFolder", this.destinationFolder);
             }
 
             var copiedLandscapesCount = 0;
@@ -124,6 +128,10 @@ namespace SpotlightImages
             Console.Clear();
             this.uiDrawer.DrawResult(copiedLandscapesCount, existingLandscapesCount, copiedPortraitsCount, existingPortraitsCount);
 
+            if (uiDrawer.DrawOpenFolderDialog())
+            {
+                Process.Start("explorer.exe", this.destinationFolder);
+            }
         }
 
         // todo: handle exceptions
@@ -139,7 +147,7 @@ namespace SpotlightImages
 
             if (!File.Exists(appsettingsPath))
             {
-                var jsonContent = "{\n\r \"destinationFolder\" : \"" + this.defaultDestinationFolder + "\",\n\r \"spotlightImagesFolder\" : \"" + this.spotlightImagesFolder.Replace('\\', '/') + "\"\n\r }";
+                var jsonContent = "{\n\r \"destinationFolder\" : \"" + this.defaultDestinationFolder.Replace('\\', '/') + "\",\n\r \"spotlightImagesFolder\" : \"" + this.spotlightImagesFolder.Replace('\\', '/') + "\"\n\r }";
                 File.WriteAllText(appsettingsPath, jsonContent);
             }
 
@@ -152,7 +160,7 @@ namespace SpotlightImages
                     this.SetConfiguration("destinationFolder", this.defaultDestinationFolder);
                 }
 
-                this.destinationFolder = config["destinationFolder"];
+                this.destinationFolder = config["destinationFolder"].Replace('/', '\\');
             }
             //catch (FileNotFoundException)
             //{
@@ -171,7 +179,7 @@ namespace SpotlightImages
         // todo: validate json
         private void SetConfiguration(string key, string value)
         {
-            this.config[key] = value;
+            this.config[key] = value.Replace('\\', '/');
         }
 
         public Size GetJpegImageSize(string filename)
