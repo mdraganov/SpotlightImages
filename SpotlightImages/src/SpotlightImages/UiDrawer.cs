@@ -9,7 +9,7 @@ namespace SpotlightImages
     public class UiDrawer
     {
         public UiDrawer()
-        {            
+        {
             Console.OutputEncoding = Encoding.UTF8;
         }
 
@@ -68,12 +68,14 @@ namespace SpotlightImages
                 if ((isYes && key.Key == ConsoleKey.RightArrow) || (!isYes && key.Key == ConsoleKey.LeftArrow))
                 {
                     isYes = !isYes;
-                    Console.SetCursorPosition(0, Console.CursorTop - 3);
                 }
                 else if (key.Key == ConsoleKey.Enter)
                 {
                     selected = true;
+                    continue;
                 }
+
+                Console.SetCursorPosition(0, Console.CursorTop - 3);
             }
 
             return isYes;
